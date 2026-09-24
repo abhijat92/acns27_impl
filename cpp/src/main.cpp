@@ -69,8 +69,12 @@ int main(int argc, char** argv) {
         double poi_ms = std::chrono::duration<double,std::milli>(p1-p0).count();
 
         auto f0 = std::chrono::steady_clock::now();
-        std::vector<uint64_t> eligible{clients/2 + 1, static_cast<uint64_t>(clients) - clients/2 - 1};
-        std::vector<uint64_t> included{clients/2, static_cast<uint64_t>(clients) - clients/2};
+        //std::vector<uint64_t> eligible({clients/2 + 1, static_cast<uint64_t>(clients) - clients/2 - 1});
+        //std::vector<uint64_t> included({clients/2, static_cast<uint64_t>(clients) - clients/2});
+        
+        std::vector<uint64_t> eligible{static_cast<uint64_t>(clients / 2 + 1), static_cast<uint64_t>(clients) - clients / 2 - 1};
+        std::vector<uint64_t> included{static_cast<uint64_t>(clients / 2), static_cast<uint64_t>(clients) - clients / 2};
+        
         std::vector<double> cr;
         for (std::size_t g = 0; g < eligible.size(); ++g) cr.push_back(eligible[g] ? double(included[g]) / double(eligible[g]) : 0.0);
         double mn = *std::min_element(cr.begin(), cr.end());

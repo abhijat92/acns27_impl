@@ -9,7 +9,6 @@ use curve25519_dalek_ng::ristretto::CompressedRistretto;
 use curve25519_dalek_ng::scalar::Scalar;
 use merlin::Transcript;
 use rand::rngs::OsRng;
-use rand::RngCore;
 use std::time::Instant;
 
 #[repr(C)]
@@ -37,7 +36,7 @@ fn scalar_from_u64(x: u64) -> Scalar { Scalar::from(x) }
 /// one fixed dummy multiplication gate is included; the N input relation
 /// itself uses only linear constraints. Thus proof size is effectively
 /// independent of N, while the constraint-synthesis work grows with N.
-fn build_linear_gadget<CS: ConstraintSystem<Scalar>>(
+fn build_linear_gadget<CS: ConstraintSystem>(
     cs: &mut CS,
     vars: &[Variable],
     values: &[Scalar],
@@ -62,7 +61,7 @@ fn build_linear_gadget<CS: ConstraintSystem<Scalar>>(
 }
 
 /// Vector-style gadget with one multiplication gate per element.
-fn build_vector_gadget<CS: ConstraintSystem<Scalar>>(
+fn build_vector_gadget<CS: ConstraintSystem>(
     cs: &mut CS,
     vars: &[Variable],
     values: &[Scalar],
@@ -77,7 +76,8 @@ fn build_vector_gadget<CS: ConstraintSystem<Scalar>>(
 fn prove_and_verify(n: usize, mode: u32) -> Result<ZkBenchResult, String> {
     let pc_gens = PedersenGens::default();
     // Vector mode needs n generators; linear mode needs one fixed gate.
-    let capacity = if mode == 0 { 1usize } else { n.max(1) };
+    //let capacity = if mode == 0 { 1usize } else { n.next_power_of_two() };
+    let capacity = n.next_power_of_two();
     let bp_gens = BulletproofGens::new(capacity, 1);
 
     let mut rng = OsRng;

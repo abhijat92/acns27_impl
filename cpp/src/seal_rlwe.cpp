@@ -21,22 +21,22 @@ SealBenchResult benchmark_bgv_aggregation(const std::vector<std::vector<int64_t>
     parms.set_coeff_modulus(CoeffModulus::BFVDefault(poly_degree));
     parms.set_plain_modulus(PlainModulus::Batching(poly_degree, 20));
 
-    auto context = SEALContext::Create(parms);
-    if (!context->parameters_set()) throw std::runtime_error("invalid SEAL parameters: " + context->parameter_error_message());
+    SEALContext context(parms);
+    //if (!context.parameters_set()) throw std::runtime_error("invalid SEAL parameters: " + context.parameter_error_message());
 
     SealBenchResult r;
     auto t0 = std::chrono::steady_clock::now();
-    KeyGenerator keygen(*context);
+    KeyGenerator keygen(context);
     SecretKey sk = keygen.secret_key();
     PublicKey pk;
     keygen.create_public_key(pk);
     auto t1 = std::chrono::steady_clock::now();
     r.keygen_ms = std::chrono::duration<double, std::milli>(t1-t0).count();
 
-    BatchEncoder encoder(*context);
-    Encryptor encryptor(*context, pk);
-    Evaluator evaluator(*context);
-    Decryptor decryptor(*context, sk);
+    BatchEncoder encoder(context);
+    Encryptor encryptor(context, pk);
+    Evaluator evaluator(context);
+    Decryptor decryptor(context, sk);
 
     const std::size_t slots = encoder.slot_count();
     r.chunks = (n + slots - 1) / slots;
@@ -53,7 +53,7 @@ SealBenchResult benchmark_bgv_aggregation(const std::vector<std::vector<int64_t>
             for (std::size_t j = begin; j < end; ++j) {
                 int64_t v = update[j];
                 // Modulo the plaintext modulus; BGV plaintexts are represented modulo t.
-                const uint64_t t = context->first_context_data()->parms().plain_modulus().value();
+                const uint64_t t = context.first_context_data()->parms().plain_modulus().value();
                 packed[j - begin] = static_cast<uint64_t>((v % static_cast<int64_t>(t) + static_cast<int64_t>(t)) % static_cast<int64_t>(t));
             }
             Plaintext pt;
@@ -107,7 +107,7 @@ SealBenchResult benchmark_bgv_aggregation(const std::vector<std::vector<int64_t>
     r.decrypt_check = true;
     for (std::size_t i = 0; i < actual.size(); ++i) {
         int64_t expected = expected_prefix[i];
-        const int64_t t = static_cast<int64_t>(context->first_context_data()->parms().plain_modulus().value());
+        const int64_t t = static_cast<int64_t>(context.first_context_data()->parms().plain_modulus().value());
         int64_t expected_mod = (expected % t + t) % t;
         if (actual[i] != expected_mod) { r.decrypt_check = false; break; }
     }
