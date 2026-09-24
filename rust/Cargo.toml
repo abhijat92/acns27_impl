@@ -1,0 +1,21 @@
+[package]
+name = "flzk"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+bulletproofs = { version = "4.0.0", features = ["yoloproofs"] }
+curve25519-dalek-ng = "4.1.1"
+merlin = "3.0"
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1

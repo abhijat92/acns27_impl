@@ -1,0 +1,7 @@
+build/
+rust/target/
+results/*.csv
+*.log
+.DS_Store
+.idea/
+.vscode/
