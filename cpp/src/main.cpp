@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
             client_updates.push_back(std::move(encoded));
         }
 
-        auto seal = benchmark_bgv_aggregation(client_updates, 8192);
+        auto seal = benchmark_bgv_aggregation(client_updates, ACNS_RLWE_N);
 
         zk_bench_result_t zk{};
         // mode 0: linear/matrix-style R1CS (constant number of multiplication gates);
